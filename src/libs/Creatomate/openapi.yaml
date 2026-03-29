@@ -1,0 +1,414 @@
+openapi: 3.0.3
+info:
+  title: Creatomate API
+  description: |
+    Creatomate is a programmatic video and image rendering platform.
+    It provides a REST API for creating renders from templates or RenderScript,
+    retrieving render statuses, and managing templates.
+  version: "1.0.0"
+  contact:
+    name: Creatomate
+    url: https://creatomate.com
+  termsOfService: https://creatomate.com/terms
+
+servers:
+  - url: https://api.creatomate.com/v1
+    description: Creatomate API v1
+
+security:
+  - BearerAuth: []
+
+paths:
+  /renders:
+    post:
+      operationId: createRender
+      summary: Create a render
+      description: |
+        Starts one or multiple renders. A 202 Accepted response is returned when the request
+        has been successfully received, along with an array of renders that have been queued.
+        Use the render ID from the response to poll the status of the render.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRenderRequest'
+      responses:
+        '202':
+          description: Render(s) queued successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Render'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '402':
+          description: Insufficient credits
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /renders/{renderId}:
+    get:
+      operationId: getRender
+      summary: Get the status of a render
+      description: |
+        Retrieves the current status of a render by its ID. Use this endpoint to poll
+        the progress of a render that was started with the create render endpoint.
+        Images are typically ready within seconds, but videos can take longer.
+      parameters:
+        - name: renderId
+          in: path
+          required: true
+          description: The unique identifier of the render
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Render details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Render'
+        '401':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Render not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /templates:
+    get:
+      operationId: listTemplates
+      summary: Get all templates in a project
+      description: |
+        Returns a list of all template metadata in the project associated with the API key.
+        This does not include the template's RenderScript source — use the get template by ID
+        endpoint for that.
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TemplateSummary'
+        '401':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /templates/{templateId}:
+    get:
+      operationId: getTemplate
+      summary: Get a template by its ID
+      description: |
+        Retrieves a specific template by its ID, including its full RenderScript source.
+        Template IDs can be found by listing all project templates or from the template
+        editor URL in the Creatomate dashboard.
+      parameters:
+        - name: templateId
+          in: path
+          required: true
+          description: The unique identifier of the template
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Template details with source
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Template'
+        '401':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Template not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        API key authentication. Find your API key in your Creatomate project settings.
+        Pass it as a Bearer token in the Authorization header.
+
+  schemas:
+    CreateRenderRequest:
+      type: object
+      description: Options for creating a render
+      properties:
+        template_id:
+          type: string
+          description: The ID of the template created in the editor. Either template_id or source must be provided.
+        tags:
+          type: array
+          items:
+            type: string
+          description: Filter templates by tags. When provided, renders are created for all matching templates.
+        source:
+          type: object
+          description: |
+            A RenderScript object that defines the render. Can be used instead of template_id
+            to create renders without a pre-made template.
+          additionalProperties: true
+        modifications:
+          type: object
+          description: |
+            Changes to apply to the template before it is rendered. Keys are element property
+            paths and values are the new values to set.
+          additionalProperties:
+            oneOf:
+              - type: string
+              - type: number
+        output_format:
+          type: string
+          enum:
+            - jpg
+            - png
+            - gif
+            - mp4
+          description: The output format of the render. Defaults to the template's output format if not specified.
+        frame_rate:
+          type: number
+          description: The frame rate of the output video. Only applicable for mp4 and gif output formats.
+        render_scale:
+          type: number
+          minimum: 0.1
+          maximum: 10
+          description: |
+            The scale at which to render. The default value is 1.0 (100%).
+            Ignored when max_width or max_height is set.
+        max_width:
+          type: integer
+          description: Scales the output so that its width never exceeds the provided number of pixels.
+        max_height:
+          type: integer
+          description: Scales the output so that its height never exceeds the provided number of pixels.
+        webhook_url:
+          type: string
+          format: uri
+          description: A URL that is called when the render succeeds or fails.
+        metadata:
+          type: string
+          description: A value you want to pass to the webhook URL for identification purposes.
+
+    Render:
+      type: object
+      description: Represents a render job and its output
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier of the render
+        status:
+          $ref: '#/components/schemas/RenderStatus'
+        error_message:
+          type: string
+          nullable: true
+          description: Error message if the render has failed
+        url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL to download the rendered file. Only available when status is succeeded.
+        snapshot_url:
+          type: string
+          format: uri
+          nullable: true
+          description: URL of the snapshot image. Only available when the template has snapshot_time configured.
+        template_id:
+          type: string
+          nullable: true
+          description: The ID of the template used for this render
+        template_name:
+          type: string
+          nullable: true
+          description: The name of the template used for this render
+        template_tags:
+          type: array
+          nullable: true
+          items:
+            type: string
+          description: Tags of the template used for this render
+        output_format:
+          type: string
+          description: The output format (jpg, png, gif, mp4)
+        render_scale:
+          type: number
+          description: The scale at which the render was created
+        width:
+          type: integer
+          nullable: true
+          description: Width of the output in pixels
+        height:
+          type: integer
+          nullable: true
+          description: Height of the output in pixels
+        frame_rate:
+          type: number
+          nullable: true
+          description: Frame rate of the output video
+        duration:
+          type: number
+          nullable: true
+          description: Duration of the output in seconds
+        file_size:
+          type: integer
+          nullable: true
+          description: File size of the output in bytes
+        modifications:
+          type: object
+          nullable: true
+          description: The modifications that were applied to the template
+          additionalProperties: true
+        webhook_url:
+          type: string
+          format: uri
+          nullable: true
+          description: The webhook URL that was configured for this render
+        metadata:
+          type: string
+          nullable: true
+          description: The metadata value that was provided when creating the render
+      required:
+        - id
+        - status
+        - output_format
+        - render_scale
+
+    RenderStatus:
+      type: string
+      enum:
+        - planned
+        - waiting
+        - transcribing
+        - rendering
+        - succeeded
+        - failed
+      description: |
+        The current status of the render:
+        - planned: The render has been queued
+        - waiting: The render is waiting in the queue
+        - transcribing: Audio transcription is in progress
+        - rendering: The render is being processed
+        - succeeded: The render completed successfully
+        - failed: The render has failed
+
+    TemplateSummary:
+      type: object
+      description: Summary of a template (without RenderScript source)
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier of the template
+        name:
+          type: string
+          description: The display name of the template
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the template
+        created_at:
+          type: string
+          format: date-time
+          description: When the template was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the template was last modified
+      required:
+        - id
+        - name
+        - tags
+        - created_at
+        - updated_at
+
+    Template:
+      type: object
+      description: Full template with RenderScript source
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The unique identifier of the template
+        name:
+          type: string
+          description: The display name of the template
+        tags:
+          type: array
+          items:
+            type: string
+          description: Tags associated with the template
+        source:
+          type: object
+          description: The template's RenderScript definition
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+          description: When the template was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the template was last modified
+      required:
+        - id
+        - name
+        - tags
+        - source
+        - created_at
+        - updated_at
+
+    ErrorResponse:
+      type: object
+      description: Error response from the API
+      properties:
+        hint:
+          type: string
+          description: A human-readable error message
+        documentation_url:
+          type: string
+          format: uri
+          description: A URL to the relevant documentation
