@@ -1,6 +1,9 @@
 # Microsoft.Extensions.AI Integration
 
-The Creatomate SDK provides `AIFunction` tools that can be used with any `IChatClient` for function/tool calling.
+!!! tip "Cross-SDK comparison"
+    See the [centralized MEAI documentation](https://tryagi.github.io/docs/meai/) for feature matrices and comparisons across all tryAGI SDKs.
+
+The Creatomate SDK provides `AIFunction` tool wrappers compatible with [Microsoft.Extensions.AI](https://learn.microsoft.com/en-us/dotnet/ai/microsoft-extensions-ai). These tools can be used with any `IChatClient` to give AI models access to Creatomate's programmatic video and image rendering capabilities.
 
 ## Available Tools
 
