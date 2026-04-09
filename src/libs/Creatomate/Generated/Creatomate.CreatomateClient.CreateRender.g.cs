@@ -5,6 +5,25 @@ namespace Creatomate
 {
     public partial class CreatomateClient
     {
+
+
+        private static readonly global::Creatomate.EndPointSecurityRequirement s_CreateRenderSecurityRequirement0 =
+            new global::Creatomate.EndPointSecurityRequirement
+            {
+                Authorizations = new global::Creatomate.EndPointAuthorizationRequirement[]
+                {                    new global::Creatomate.EndPointAuthorizationRequirement
+                    {
+                        Type = "Http",
+                        Location = "Header",
+                        Name = "Bearer",
+                        FriendlyName = "Bearer",
+                    },
+                },
+            };
+        private static readonly global::Creatomate.EndPointSecurityRequirement[] s_CreateRenderSecurityRequirements =
+            new global::Creatomate.EndPointSecurityRequirement[]
+            {                s_CreateRenderSecurityRequirement0,
+            };
         partial void PrepareCreateRenderArguments(
             global::System.Net.Http.HttpClient httpClient,
             global::Creatomate.CreateRenderRequest request);
@@ -43,9 +62,15 @@ namespace Creatomate
                 httpClient: HttpClient,
                 request: request);
 
+
+            var __authorizations = global::Creatomate.EndPointSecurityResolver.ResolveAuthorizations(
+                availableAuthorizations: Authorizations,
+                securityRequirements: s_CreateRenderSecurityRequirements,
+                operationName: "CreateRenderAsync");
+
             var __pathBuilder = new global::Creatomate.PathBuilder(
                 path: "/renders",
-                baseUri: HttpClient.BaseAddress); 
+                baseUri: HttpClient.BaseAddress);
             var __path = __pathBuilder.ToString();
             using var __httpRequest = new global::System.Net.Http.HttpRequestMessage(
                 method: global::System.Net.Http.HttpMethod.Post,
@@ -55,7 +80,7 @@ namespace Creatomate
             __httpRequest.VersionPolicy = global::System.Net.Http.HttpVersionPolicy.RequestVersionOrHigher;
 #endif
 
-            foreach (var __authorization in Authorizations)
+            foreach (var __authorization in __authorizations)
             {
                 if (__authorization.Type == "Http" ||
                     __authorization.Type == "OAuth2")
