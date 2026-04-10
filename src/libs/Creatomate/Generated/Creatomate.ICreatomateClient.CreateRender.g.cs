@@ -11,11 +11,13 @@ namespace Creatomate
         /// Use the render ID from the response to poll the status of the render.
         /// </summary>
         /// <param name="request"></param>
+        /// <param name="requestOptions">Per-request overrides such as headers, query parameters, timeout, retries, and response buffering.</param>
         /// <param name="cancellationToken">The token to cancel the operation with</param>
         /// <exception cref="global::Creatomate.ApiException"></exception>
         global::System.Threading.Tasks.Task<global::System.Collections.Generic.IList<global::Creatomate.Render>> CreateRenderAsync(
 
             global::Creatomate.CreateRenderRequest request,
+            global::Creatomate.AutoSDKRequestOptions? requestOptions = default,
             global::System.Threading.CancellationToken cancellationToken = default);
         /// <summary>
         /// Create a render<br/>
@@ -59,6 +61,7 @@ namespace Creatomate
         /// <param name="metadata">
         /// A value you want to pass to the webhook URL for identification purposes.
         /// </param>
+        /// <param name="requestOptions">Per-request overrides such as headers, query parameters, timeout, retries, and response buffering.</param>
         /// <param name="cancellationToken">The token to cancel the operation with</param>
         /// <exception cref="global::System.InvalidOperationException"></exception>
         global::System.Threading.Tasks.Task<global::System.Collections.Generic.IList<global::Creatomate.Render>> CreateRenderAsync(
@@ -73,6 +76,7 @@ namespace Creatomate
             int? maxHeight = default,
             string? webhookUrl = default,
             string? metadata = default,
+            global::Creatomate.AutoSDKRequestOptions? requestOptions = default,
             global::System.Threading.CancellationToken cancellationToken = default);
     }
 }
