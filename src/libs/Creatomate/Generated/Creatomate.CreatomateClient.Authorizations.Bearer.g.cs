@@ -25,6 +25,7 @@ namespace Creatomate
             Authorizations.Add(new global::Creatomate.EndPointAuthorization
             {
                 Type = "Http",
+                SchemeId = "BearerAuth",
                 Location = "Header",
                 Name = "Bearer",
                 Value = apiKey,
