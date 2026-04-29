@@ -127,7 +127,7 @@ namespace Creatomate
                 PrepareGetTemplateRequest(
                     httpClient: HttpClient,
                     httpRequestMessage: __httpRequest,
-                    templateId: templateId);
+                    templateId: templateId!);
 
                 return __httpRequest;
             }
