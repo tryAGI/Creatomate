@@ -127,7 +127,7 @@ namespace Creatomate
                 PrepareGetRenderRequest(
                     httpClient: HttpClient,
                     httpRequestMessage: __httpRequest,
-                    renderId: renderId);
+                    renderId: renderId!);
 
                 return __httpRequest;
             }
