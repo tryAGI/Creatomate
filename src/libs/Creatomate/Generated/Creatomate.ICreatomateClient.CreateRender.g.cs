@@ -25,6 +25,21 @@ namespace Creatomate
         /// has been successfully received, along with an array of renders that have been queued.<br/>
         /// Use the render ID from the response to poll the status of the render.
         /// </summary>
+        /// <param name="request"></param>
+        /// <param name="requestOptions">Per-request overrides such as headers, query parameters, timeout, retries, and response buffering.</param>
+        /// <param name="cancellationToken">The token to cancel the operation with</param>
+        /// <exception cref="global::Creatomate.ApiException"></exception>
+        global::System.Threading.Tasks.Task<global::Creatomate.AutoSDKHttpResponse<global::System.Collections.Generic.IList<global::Creatomate.Render>>> CreateRenderAsResponseAsync(
+
+            global::Creatomate.CreateRenderRequest request,
+            global::Creatomate.AutoSDKRequestOptions? requestOptions = default,
+            global::System.Threading.CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Create a render<br/>
+        /// Starts one or multiple renders. A 202 Accepted response is returned when the request<br/>
+        /// has been successfully received, along with an array of renders that have been queued.<br/>
+        /// Use the render ID from the response to poll the status of the render.
+        /// </summary>
         /// <param name="templateId">
         /// The ID of the template created in the editor. Either template_id or source must be provided.
         /// </param>
