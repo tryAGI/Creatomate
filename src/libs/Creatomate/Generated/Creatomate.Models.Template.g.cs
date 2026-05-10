@@ -102,5 +102,6 @@ namespace Creatomate
         public Template()
         {
         }
+
     }
 }
