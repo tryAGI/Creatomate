@@ -52,5 +52,6 @@ namespace Creatomate
         public ErrorResponse()
         {
         }
+
     }
 }
