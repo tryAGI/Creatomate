@@ -9,19 +9,19 @@ namespace Creatomate
     public enum CreateRenderRequestOutputFormat
     {
         /// <summary>
-        /// 
+        ///
         /// </summary>
         Gif,
         /// <summary>
-        /// 
+        ///
         /// </summary>
         Jpg,
         /// <summary>
-        /// 
+        ///
         /// </summary>
         Mp4,
         /// <summary>
-        /// 
+        ///
         /// </summary>
         Png,
     }
