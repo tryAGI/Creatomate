@@ -20,7 +20,7 @@ namespace Creatomate.JsonConverters
                     {
                         return global::Creatomate.RenderStatusExtensions.ToEnum(stringValue);
                     }
-                    
+
                     break;
                 }
                 case global::System.Text.Json.JsonTokenType.Number:
